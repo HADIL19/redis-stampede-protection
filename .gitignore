@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Environment variables (never push real secrets/credentials)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Docker volumes / local data
+pgdata/
+
+# Build output (if you add one later)
+dist/
+build/
+
+# Coverage/test output
+coverage/

@@ -1,0 +1,6 @@
+# Normalize line endings to LF for all text files, regardless of OS.
+* text=auto eol=lf
+
+# Except Windows-specific scripts, if you ever add any
+*.bat text eol=crlf
+*.cmd text eol=crlf
