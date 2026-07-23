@@ -1,4 +1,5 @@
 import redis from "../redisClient.js";
+import { cacheHitsTotal, cacheMissesTotal, cacheLockWaitsTotal } from "../metrics/prometheus.js";
 
 // In-memory counters for the /metrics endpoint.
 // (In a real system you'd push these to Prometheus/Datadog instead.)
@@ -35,10 +36,12 @@ export async function getWithCacheAside(key, ttlSeconds, fetchFromSource) {
   const cached = await redis.get(key);
   if (cached !== null) {
     metrics.hits++;
+    cacheHitsTotal.inc();
     return JSON.parse(cached);
   }
 
   metrics.misses++;
+  cacheMissesTotal.inc();
 
   const lockKey = `lock:${key}`;
   // NX = only set if not already set, PX = expiry in ms. Acts as a mutex.
@@ -57,6 +60,7 @@ export async function getWithCacheAside(key, ttlSeconds, fetchFromSource) {
   // Someone else is rebuilding the cache for this key right now.
   // Poll instead of issuing a redundant DB query.
   metrics.lockWaits++;
+  cacheLockWaitsTotal.inc();
   for (let attempt = 0; attempt < LOCK_MAX_RETRIES; attempt++) {
     await sleep(LOCK_RETRY_DELAY_MS);
     const retryCached = await redis.get(key);
